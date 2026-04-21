@@ -13,19 +13,16 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem('onyx_v3');
-    const savedSecurity = localStorage.getItem('onyx_sec');
-    const savedPin = localStorage.getItem('onyx_p');
-    if (savedTasks) setTasks(JSON.parse(savedTasks));
-    if (savedPin) setMasterPin(savedPin);
-    if (savedSecurity === 'true') {
-      setSecurityEnabled(true);
-      setIsLocked(true);
-    }
+    const saved = localStorage.getItem('onyx_v5');
+    const sec = localStorage.getItem('onyx_sec');
+    const p = localStorage.getItem('onyx_p');
+    if (saved) setTasks(JSON.parse(saved));
+    if (p) setMasterPin(p);
+    if (sec === 'true') { setSecurityEnabled(true); setIsLocked(true); }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('onyx_v3', JSON.stringify(tasks));
+    localStorage.setItem('onyx_v5', JSON.stringify(tasks));
     localStorage.setItem('onyx_sec', securityEnabled);
     localStorage.setItem('onyx_p', masterPin);
   }, [tasks, securityEnabled, masterPin]);
@@ -33,7 +30,7 @@ export default function App() {
   const addTask = (text = input) => {
     if (text.trim()) {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const timeStr = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
       setTasks([{ id: Date.now(), text: text.trim(), time: timeStr }, ...tasks]);
       setInput('');
       if (navigator.vibrate) navigator.vibrate(15);
@@ -42,10 +39,10 @@ export default function App() {
 
   const startVoice = () => {
     const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) return alert("Not supported");
+    if (!Speech) return;
     const rec = new Speech();
     rec.onstart = () => setIsListening(true);
-    rec.onresult = (e) => { addTask(e.results[0][0].transcript); setIsListening(false); };
+    rec.onresult = (e) => { addTask(e.results.transcript); setIsListening(false); };
     rec.onend = () => setIsListening(false);
     rec.start();
   };
@@ -54,16 +51,16 @@ export default function App() {
     const newPin = pin + digit;
     setPin(newPin);
     if (newPin === masterPin) { setIsLocked(false); setPin(''); }
-    else if (newPin.length >= 4) { setPin(''); if(navigator.vibrate) navigator.vibrate(100); }
+    else if (newPin.length >= 4) { setPin(''); }
   };
 
   if (isLocked && securityEnabled) {
     return (
-      <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center font-serif text-yellow-500">
-        <div className="text-5xl mb-12 tracking-tighter opacity-80">★ ★</div>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-serif text-yellow-600">
+        <div className="text-4xl mb-12 tracking-widest opacity-50">★ ★</div>
         <div className="flex gap-6 mb-16">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full border border-yellow-600 ${pin.length > i ? 'bg-yellow-500 shadow-[0_0_10px_#eab308]' : ''}`} />
+            <div key={i} className={`w-2 h-2 rounded-full border border-yellow-700 ${pin.length > i ? 'bg-yellow-500 shadow-[0_0_10px_#eab308]' : ''}`} />
           ))}
         </div>
         <div className="grid grid-cols-3 gap-10">
@@ -78,66 +75,65 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#f4f4f4] font-serif p-8 selection:bg-yellow-500/20">
-      <div className="max-w-xl mx-auto">
+    <div className="min-h-screen bg-[#050505] text-[#f4f4f4] font-serif p-4">
+      <div className="max-w-4xl mx-auto">
         
-        {/* Luxury Header */}
-        <header className="flex justify-between items-baseline mb-20">
-          <div>
-            <h1 className="text-5xl font-light tracking-tighter text-yellow-500/90">Onyx</h1>
-            <p className="text-[10px] tracking-[0.6em] uppercase mt-2 text-yellow-700/50">Est. 2024</p>
+        {/* Header with Top-Right Search */}
+        <header className="flex justify-between items-center py-6 mb-4 px-2">
+          <h1 className="text-3xl font-black text-yellow-500 tracking-tighter">Onyx</h1>
+          <div className="flex items-center gap-4">
+            <div className="relative flex items-center">
+              <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 absolute left-3 text-yellow-700/50">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              <input 
+                className="bg-white/5 border border-white/5 rounded-full py-1.5 pl-9 pr-4 text-xs text-white outline-none focus:border-yellow-900/50 w-32 sm:w-48 transition-all" 
+                placeholder="Search" 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+              />
+            </div>
+            <button onClick={() => setShowSettings(!showSettings)} className="text-[10px] tracking-widest uppercase text-yellow-700">{showSettings ? 'Back' : 'Menu'}</button>
           </div>
-          <button onClick={() => setShowSettings(!showSettings)} className="text-[10px] tracking-widest uppercase border-b border-yellow-900 pb-1 text-yellow-600">
-            {showSettings ? 'Close' : 'Menu'}
-          </button>
         </header>
 
         {showSettings ? (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-12 py-10">
-             <section className="space-y-4">
-                <label className="text-[10px] tracking-widest text-yellow-700 uppercase">Security Protocol</label>
-                <button onClick={() => setSecurityEnabled(!securityEnabled)} className="w-full text-left py-4 text-2xl border-b border-white/10">
-                  {securityEnabled ? 'Encryption: Active' : 'Encryption: Off'}
-                </button>
-             </section>
-             <section className="space-y-4">
-                <label className="text-[10px] tracking-widest text-yellow-700 uppercase">New Access Code</label>
-                <input type="number" placeholder="0000" className="w-full bg-transparent py-4 text-2xl border-b border-white/10 outline-none placeholder:text-white/10" onChange={e => e.target.value.length === 4 && setMasterPin(e.target.value)} />
-             </section>
-             <button onClick={() => { if(confirm("Destroy all?")) setTasks([]); }} className="w-full py-6 text-red-900 uppercase text-[10px] tracking-[0.8em] mt-20">Wipe Data Vault</button>
+          <div className="p-4 space-y-10">
+            <button onClick={() => setSecurityEnabled(!securityEnabled)} className="w-full text-left py-4 text-xl border-b border-white/5">{securityEnabled ? 'Vault: Secured' : 'Vault: Open'}</button>
+            <input type="number" placeholder="New PIN" className="w-full bg-transparent py-4 text-xl border-b border-white/5 outline-none" onChange={e => e.target.value.length === 4 && setMasterPin(e.target.value)} />
+            <button onClick={() => { if(confirm("Wipe?")) setTasks([]); }} className="w-full py-6 text-red-900 uppercase text-[10px] tracking-widest">Clear All Data</button>
           </div>
         ) : (
-          <main className="animate-in fade-in duration-1000">
-            {/* Search and Input */}
-            <div className="mb-20 space-y-12">
-              <input className="w-full bg-transparent border-b border-white/10 py-2 text-sm italic placeholder:text-white/10 outline-none" 
-                placeholder="Find entry..." value={search} onChange={e => setSearch(e.target.value)} />
-              
-              <div className="relative group">
-                <input className="w-full bg-transparent border-b border-yellow-900/50 py-4 text-3xl outline-none placeholder:text-white/5 focus:border-yellow-600 transition-all" 
-                  placeholder="New Thought" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} />
-                <div className="absolute right-0 bottom-4 flex gap-8 items-center">
-                   <button onClick={startVoice} className={`${isListening ? 'text-red-500' : 'text-yellow-600'} transition-colors`}>Mic</button>
-                   <button onClick={() => addTask()} className="text-yellow-500 text-sm tracking-widest font-bold uppercase">Add</button>
-                </div>
+          <main>
+            {/* Input Bar */}
+            <div className="bg-[#111] rounded-2xl p-2 mb-8 shadow-2xl border border-white/5">
+              <input className="w-full bg-transparent p-4 text-lg outline-none placeholder:text-white/20" 
+                placeholder="Take a note..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} />
+              <div className="flex justify-end gap-6 px-4 pb-2 items-center">
+                <button onClick={startVoice} className={isListening ? 'text-red-500' : 'text-yellow-600'}>
+                  <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+                  </svg>
+                </button>
+                <button onClick={() => addTask()} className="text-yellow-500 text-xs font-bold uppercase tracking-widest">Save</button>
               </div>
             </div>
 
-            {/* List */}
-            <div className="space-y-16">
+            {/* Grid Layout */}
+            <div className="columns-2 gap-4 space-y-4">
               {tasks.filter(t => t.text.toLowerCase().includes(search.toLowerCase())).map(t => (
-                <div key={t.id} className="group border-l border-yellow-900/20 pl-8 relative">
-                   <div className="text-3xl font-light leading-snug mb-3 text-white/90">{t.text}</div>
+                <div key={t.id} className="break-inside-avoid bg-[#111] border border-white/5 p-5 rounded-2xl hover:border-yellow-900/40 transition-all group">
+                   <div className="text-xl font-light leading-relaxed mb-4 text-white/90 break-words">{t.text}</div>
                    <div className="flex justify-between items-center">
-                     <span className="text-[10px] tracking-[0.4em] text-yellow-700/50 uppercase">{t.time}</span>
-                     <button onClick={() => setTasks(tasks.filter(x => x.id !== t.id))} className="text-white/10 group-hover:text-red-900 transition-colors text-xs">Delete</button>
+                     <span className="text-[8px] tracking-widest text-yellow-700/40 uppercase font-bold">{t.time}</span>
+                     <button onClick={() => setTasks(tasks.filter(x => x.id !== t.id))} className="text-white/5 group-hover:text-red-900 transition-colors text-[10px]">✕</button>
                    </div>
                 </div>
               ))}
             </div>
             
             {securityEnabled && (
-              <button onClick={() => setIsLocked(true)} className="mt-32 w-full py-10 text-[9px] tracking-[1em] uppercase text-yellow-900/30 hover:text-yellow-600 transition-all underline underline-offset-8">Lock Onyx</button>
+              <button onClick={() => setIsLocked(true)} className="mt-20 w-full py-10 text-[8px] tracking-[1em] uppercase text-yellow-900/20">Lock Onyx</button>
             )}
           </main>
         )}
