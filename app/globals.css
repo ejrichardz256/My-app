@@ -3,11 +3,18 @@
 @tailwind utilities;
 
 body {
-  background-color: #000;
-  color: #fff;
-  overflow-x: hidden;
+  background-color: #000000;
+  color: #ffffff;
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar {
-  width: 0px;
+/* High contrast inputs */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Remove default mobile highlighting */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
