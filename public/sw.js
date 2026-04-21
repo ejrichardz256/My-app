@@ -1,8 +1,12 @@
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
+self.addEventListener('install', (event) => {
+  event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('fetch', (e) => {
-  // This keeps the app working on your phone
-  e.respondWith(fetch(e.request));
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  // Logic to allow offline access
+  event.respondWith(fetch(event.request));
 });
