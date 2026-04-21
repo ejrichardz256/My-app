@@ -13,7 +13,7 @@ export default function App() {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('onyx_v6');
+    const saved = localStorage.getItem('onyx_v7');
     const sec = localStorage.getItem('onyx_sec');
     const p = localStorage.getItem('onyx_p');
     if (saved) setTasks(JSON.parse(saved));
@@ -22,7 +22,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('onyx_v6', JSON.stringify(tasks));
+    localStorage.setItem('onyx_v7', JSON.stringify(tasks));
     localStorage.setItem('onyx_sec', securityEnabled);
     localStorage.setItem('onyx_p', masterPin);
   }, [tasks, securityEnabled, masterPin]);
@@ -56,16 +56,16 @@ export default function App() {
 
   if (isLocked && securityEnabled) {
     return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-serif text-yellow-600">
-        <div className="text-4xl mb-12 tracking-widest opacity-50">★ ★</div>
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-sans text-yellow-600">
+        <div className="text-4xl mb-12 opacity-50">★ ★</div>
         <div className="flex gap-6 mb-16">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full border border-yellow-700 ${pin.length > i ? 'bg-yellow-500 shadow-[0_0_10px_#eab308]' : ''}`} />
+            <div key={i} className={`w-3 h-3 rounded-full border border-yellow-800 ${pin.length > i ? 'bg-yellow-500 shadow-[0_0_10px_#eab308]' : ''}`} />
           ))}
         </div>
-        <div className="grid grid-cols-3 gap-10">
+        <div className="grid grid-cols-3 gap-8">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0].map(btn => (
-            <button key={btn} onClick={() => btn === "C" ? setPin('') : handlePin(btn)} className="text-3xl font-light w-12 h-12 flex items-center justify-center active:scale-110 transition-transform">{btn}</button>
+            <button key={btn} onClick={() => btn === "C" ? setPin('') : handlePin(btn)} className="text-3xl font-light w-16 h-16 rounded-full border border-white/5 flex items-center justify-center active:bg-white/10 transition-all">{btn}</button>
           ))}
         </div>
       </div>
@@ -73,64 +73,77 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#f4f4f4] font-serif p-6">
+    <div className="min-h-screen bg-[#000] text-[#eee] font-sans p-4 pb-32">
       <div className="max-w-4xl mx-auto">
         
-        <header className="flex justify-between items-center py-4 mb-10">
-          <h1 className="text-3xl font-black text-yellow-500 tracking-tighter">Onyx</h1>
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center">
-              <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 absolute left-3 text-yellow-700/60">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        {/* Google Keep Pill Search Bar */}
+        <header className="sticky top-2 z-50 bg-[#1e1e1e]/90 backdrop-blur-md rounded-full px-4 py-2 flex justify-between items-center shadow-lg border border-white/5">
+          <div className="flex items-center gap-3 flex-1">
+            <button onClick={() => setShowSettings(!showSettings)} className="p-2 text-gray-400 hover:text-white">
+              <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
-              <input 
-                className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-8 pr-4 text-[10px] text-white outline-none focus:border-yellow-900/40 w-28 sm:w-40 transition-all" 
-                placeholder="Search" 
-                value={search} 
-                onChange={e => setSearch(e.target.value)} 
-              />
-            </div>
-            <button onClick={() => setShowSettings(!showSettings)} className="text-[10px] tracking-widest uppercase text-yellow-700">{showSettings ? 'Back' : 'Menu'}</button>
+            </button>
+            <input 
+              className="bg-transparent border-none w-full py-1 text-sm outline-none placeholder:text-gray-500" 
+              placeholder="Search your notes" 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-yellow-600 flex items-center justify-center font-bold text-black text-xs">O</div>
           </div>
         </header>
 
         {showSettings ? (
-          <div className="p-4 space-y-10">
-            <button onClick={() => setSecurityEnabled(!securityEnabled)} className="w-full text-left py-4 text-xl border-b border-white/5">{securityEnabled ? 'Vault: Secured' : 'Vault: Open'}</button>
-            <input type="number" placeholder="New PIN" className="w-full bg-transparent py-4 text-xl border-b border-white/5 outline-none" onChange={e => e.target.value.length === 4 && setMasterPin(e.target.value)} />
-            <button onClick={() => { if(confirm("Wipe?")) setTasks([]); }} className="w-full py-6 text-red-900 uppercase text-[10px] tracking-widest">Clear All Data</button>
+          <div className="mt-8 space-y-6 animate-in fade-in">
+             <button onClick={() => setSecurityEnabled(!securityEnabled)} className="w-full text-left py-4 border-b border-white/5 flex justify-between">
+                <span>Security Vault</span>
+                <span className="text-yellow-500">{securityEnabled ? 'Active' : 'Off'}</span>
+             </button>
+             <input type="number" placeholder="Set 4-Digit PIN" className="w-full bg-transparent py-4 border-b border-white/5 outline-none" onChange={e => e.target.value.length === 4 && setMasterPin(e.target.value)} />
+             <button onClick={() => { if(confirm("Destroy all entries?")) setTasks([]); }} className="w-full text-left py-4 text-red-800">Clear All Data</button>
+             <button onClick={() => setShowSettings(false)} className="w-full py-3 bg-yellow-600 text-black rounded-lg font-bold">Back to Notes</button>
           </div>
         ) : (
-          <main>
-            {/* Minimalist Input - No border/box */}
-            <div className="mb-12">
-              <input className="w-full bg-transparent p-2 text-xl outline-none placeholder:text-white/10 italic border-b border-white/5 mb-4" 
-                placeholder="New Thought..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} />
-              <div className="flex justify-end gap-6 items-center pr-2">
-                <button onClick={startVoice} className={isListening ? 'text-red-500' : 'text-yellow-600/80 hover:text-yellow-500'}>
-                  <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
-                  </svg>
-                </button>
-                <button onClick={() => addTask()} className="text-yellow-600/80 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-yellow-500 transition-colors">Add</button>
-              </div>
-            </div>
-
-            {/* Pill-style Grid (Matches Search Bar) */}
-            <div className="columns-2 gap-4 space-y-4">
+          <main className="mt-8">
+            <div className="columns-2 gap-3 space-y-3">
               {tasks.filter(t => t.text.toLowerCase().includes(search.toLowerCase())).map(t => (
-                <div key={t.id} className="break-inside-avoid bg-white/5 border border-white/5 p-5 rounded-[2rem] hover:border-yellow-900/30 transition-all group">
-                   <div className="text-lg font-light leading-relaxed mb-3 text-white/80 break-words">{t.text}</div>
-                   <div className="flex justify-between items-center">
-                     <span className="text-[7px] tracking-widest text-yellow-700/40 uppercase font-bold">{t.time}</span>
-                     <button onClick={() => setTasks(tasks.filter(x => x.id !== t.id))} className="text-white/5 group-hover:text-red-900 transition-colors text-[10px]">✕</button>
+                <div key={t.id} className="break-inside-avoid bg-[#1e1e1e] border border-white/10 p-4 rounded-xl hover:border-yellow-600/30 transition-all group relative">
+                   <div className="text-sm font-medium leading-relaxed mb-6 text-white/90 break-words">{t.text}</div>
+                   <div className="flex justify-between items-center text-[10px] text-gray-500">
+                     <span>{t.time}</span>
+                     <button onClick={() => setTasks(tasks.filter(x => x.id !== t.id))} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-opacity p-1">
+                        <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                     </button>
                    </div>
                 </div>
               ))}
             </div>
             
+            {/* Floating Bottom Bar (FAB) */}
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-[#1e1e1e] border border-white/10 rounded-full p-2 flex items-center shadow-2xl z-50">
+              <input className="flex-1 bg-transparent px-4 py-2 text-sm outline-none placeholder:text-gray-500" 
+                placeholder="Take a note..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} />
+              <div className="flex gap-2 pr-2">
+                 <button onClick={startVoice} className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500 text-white' : 'text-yellow-600 hover:bg-white/5'}`}>
+                    <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+                    </svg>
+                 </button>
+                 <button onClick={() => addTask()} className="bg-yellow-600 text-black px-4 py-2 rounded-full font-bold text-xs">Save</button>
+              </div>
+            </div>
+
             {securityEnabled && (
-              <button onClick={() => setIsLocked(true)} className="mt-24 w-full py-10 text-[7px] tracking-[1.5em] uppercase text-yellow-900/20 hover:text-yellow-800 transition-all">Lock Onyx</button>
+              <button onClick={() => setIsLocked(true)} className="fixed bottom-24 right-6 p-3 bg-[#1e1e1e] border border-white/10 rounded-full text-yellow-600 shadow-xl z-40">
+                 <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                 </svg>
+              </button>
             )}
           </main>
         )}
