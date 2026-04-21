@@ -1,20 +1,26 @@
+@import url('https://googleapis.com');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  background-color: #000000;
-  color: #ffffff;
-  font-family: sans-serif;
+  background-color: #050505;
+  color: #f4f4f4;
+  font-family: 'Playfair Display', serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* High contrast inputs */
-input::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+input {
+  font-family: 'Playfair Display', serif;
 }
 
-/* Remove default mobile highlighting */
-* {
-  -webkit-tap-highlight-color: transparent;
+/* Luxury transitions */
+.animate-in {
+  animation: fadeIn 1.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
